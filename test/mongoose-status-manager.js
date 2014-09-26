@@ -188,8 +188,22 @@ describe('Mongoose Status Manager', function(){
                     done();
                 });
             });
+
+            it('returns all docs with matching status and supplied meta information, only if meta information is in latest status update', function(done){
+                var doc6 = new Order();
+                doc6.updateStatus('cancelled');
+                doc6.updateStatus('cancelled', {reason: 'just because'});
+                doc6.updateStatus('cancelled', {reason: 'i felt like it'});
+
+                doc6.save(function(err){
+                    Order.findByStatus('cancelled', {reason: 'i felt like it'}, function(err, docs){
+                        if(err) done(err);
+
+                        docs.length.should.equal(1)
+                        done();
+                    });
+                });
+            });
         });
-
-
     });
 });
