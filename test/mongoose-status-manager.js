@@ -104,6 +104,41 @@ describe('Mongoose Status Manager', function(){
              });
          });
         });
+
+        describe('.findAllStatus', function(){
+            var doc;
+
+            beforeEach(function(){
+                doc = new Order();
+            });
+
+            it('returns all status objects matching given status', function(){
+                doc.updateStatus('first status');
+                doc.updateStatus('second status');
+                doc.updateStatus('third status');
+                doc.updateStatus('fourth status');
+                doc.updateStatus('second status');
+
+                doc.findAllStatus('second status', function(status){
+                    status.should.have.length(2);
+                });
+            });
+
+            it('returns all status objects matching given status in order', function(){
+                doc.updateStatus('first status');
+                doc.updateStatus('second status', {a: 1});
+                doc.updateStatus('third status');
+                doc.updateStatus('fourth status');
+                doc.updateStatus('second status', {a: 2});
+
+                doc.findAllStatus('second status', function(status){
+                    status.should.have.length(2);
+
+                    status[0].meta.a.should.equal(1);
+                    status[1].meta.a.should.equal(2);
+                });
+            });
+        });
     });
 
     describe('Static Methods', function(){
