@@ -1,4 +1,5 @@
 var mocha = require('mocha'),
+async = require('async');
 should = require('should'),
 db = require('mongoose'),
 statusPlugin = require('../lib/mongoose-status-manager');
@@ -100,5 +101,32 @@ describe('Mongoose Status Manager', function(){
             });
          });
      });
+    });
+
+    describe('.findByStatus', function(){
+        beforeEach(function(done){
+            //create some docs
+            var doc1 = new Order();
+            doc1.updateStatus('pending');
+
+            var doc2 = new Order();
+            doc2.updateStatus('complete')
+
+            var doc3 = new Order();
+            doc3.updateStatus('complete')
+
+            async.parallel([doc1.save.bind(doc1), doc2.save.bind(doc2), doc3.save.bind(doc3)], function(err){
+                done();
+            });
+        });
+
+        it('returns all docs with matching status', function(done){
+            Order.findByStatus('complete', function(err, docs){
+                if(err) done(err);
+
+                docs.length.should.equal(2)
+                done();
+            });
+        });
     });
 });
