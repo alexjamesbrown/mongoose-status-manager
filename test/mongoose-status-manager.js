@@ -21,111 +21,117 @@ describe('Mongoose Status Manager', function(){
         });
     });
 
-    describe('.updateStatus', function(){
+    describe('Instance Methods', function(){
 
-        var doc;
+        describe('.updateStatus', function(){
 
-        beforeEach(function(){
-            doc = new Order();
-        });
+            var doc;
 
-        it('sets status', function(){
+            beforeEach(function(){
+                doc = new Order();
+            });
 
-        	doc.updateStatus('first status')
+            it('sets status', function(){
 
-            doc.status.should.equal('first status')
-        });
+            	doc.updateStatus('first status')
 
-        it('adds status to status update list', function(){
+                doc.status.should.equal('first status')
+            });
 
-            doc.updateStatus('first status')
-            
-            doc.status_updates.should.have.length(1);
-            doc.status_updates[0].status.should.equal('first status')
-        });
+            it('adds status to status update list', function(){
 
-        it('adds status to status update list with date', function(){
-
-            doc.updateStatus('first status')
-            
-            doc.status_updates.should.have.length(1);
-            doc.status_updates[0].status.should.equal('first status')
-
-            doc.status_updates[0].date.toDateString().should.eql(new Date().toDateString())
-        });
-
-        it('stores status updates in order of oldest at bottom', function(){
-
-            doc.updateStatus('first status')
-            doc.updateStatus('second status')
-            doc.updateStatus('third status')
-            
-            doc.status_updates.should.have.length(3);
-            doc.status_updates[0].status.should.equal('third status')
-            doc.status_updates[1].status.should.equal('second status')
-            doc.status_updates[2].status.should.equal('first status')
-        });
-
-        it('can store meta data with update', function(){
-
-            doc.updateStatus('a status update', {userId: 'abc123', otherUserId: 'xyz789'});
-            
-            doc.status_updates.should.have.length(1);
-            doc.status.should.equal('a status update')
-            doc.status_updates[0].status.should.equal('a status update')
-
-            doc.status_updates[0].meta.userId.should.equal('abc123')
-            doc.status_updates[0].meta.otherUserId.should.equal('xyz789')
-        });
-
-        it('saves and retrieves from database', function(done){
-         doc.updateStatus('first status')
-         doc.updateStatus('second status', {userId: 1234})
-
-         doc.save(function(err){
-            if(err) done(err);
-
-            //retrieve from db
-            Order.find(function(err, result){
-                var order = result[0];
+                doc.updateStatus('first status')
                 
-                order.status.should.equal('second status');
-
-                order.status_updates.should.have.length(2);
-                order.status_updates[0].status.should.equal('second status');
-                order.status_updates[1].status.should.equal('first status');
-
-                order.status_updates[0].meta.userId.should.equal(1234);
-
-                done();
+                doc.status_updates.should.have.length(1);
+                doc.status_updates[0].status.should.equal('first status')
             });
-         });
-     });
-    });
 
-    describe('.findByStatus', function(){
-        beforeEach(function(done){
-            //create some docs
-            var doc1 = new Order();
-            doc1.updateStatus('pending');
+            it('adds status to status update list with date', function(){
 
-            var doc2 = new Order();
-            doc2.updateStatus('complete')
+                doc.updateStatus('first status')
+                
+                doc.status_updates.should.have.length(1);
+                doc.status_updates[0].status.should.equal('first status')
 
-            var doc3 = new Order();
-            doc3.updateStatus('complete')
-
-            async.parallel([doc1.save.bind(doc1), doc2.save.bind(doc2), doc3.save.bind(doc3)], function(err){
-                done();
+                doc.status_updates[0].date.toDateString().should.eql(new Date().toDateString())
             });
-        });
 
-        it('returns all docs with matching status', function(done){
-            Order.findByStatus('complete', function(err, docs){
+            it('stores status updates in order of oldest at bottom', function(){
+
+                doc.updateStatus('first status')
+                doc.updateStatus('second status')
+                doc.updateStatus('third status')
+                
+                doc.status_updates.should.have.length(3);
+                doc.status_updates[0].status.should.equal('third status')
+                doc.status_updates[1].status.should.equal('second status')
+                doc.status_updates[2].status.should.equal('first status')
+            });
+
+            it('can store meta data with update', function(){
+
+                doc.updateStatus('a status update', {userId: 'abc123', otherUserId: 'xyz789'});
+                
+                doc.status_updates.should.have.length(1);
+                doc.status.should.equal('a status update')
+                doc.status_updates[0].status.should.equal('a status update')
+
+                doc.status_updates[0].meta.userId.should.equal('abc123')
+                doc.status_updates[0].meta.otherUserId.should.equal('xyz789')
+            });
+
+            it('saves and retrieves from database', function(done){
+             doc.updateStatus('first status')
+             doc.updateStatus('second status', {userId: 1234})
+
+             doc.save(function(err){
                 if(err) done(err);
 
-                docs.length.should.equal(2)
-                done();
+                //retrieve from db
+                Order.find(function(err, result){
+                    var order = result[0];
+                    
+                    order.status.should.equal('second status');
+
+                    order.status_updates.should.have.length(2);
+                    order.status_updates[0].status.should.equal('second status');
+                    order.status_updates[1].status.should.equal('first status');
+
+                    order.status_updates[0].meta.userId.should.equal(1234);
+
+                    done();
+                });
+             });
+         });
+        });
+    });
+
+    describe('Static Methods', function(){
+
+        describe('.findByStatus', function(){
+            beforeEach(function(done){
+                //create some docs
+                var doc1 = new Order();
+                doc1.updateStatus('pending');
+
+                var doc2 = new Order();
+                doc2.updateStatus('complete')
+
+                var doc3 = new Order();
+                doc3.updateStatus('complete')
+
+                async.parallel([doc1.save.bind(doc1), doc2.save.bind(doc2), doc3.save.bind(doc3)], function(err){
+                    done();
+                });
+            });
+
+            it('returns all docs with matching status', function(done){
+                Order.findByStatus('complete', function(err, docs){
+                    if(err) done(err);
+
+                    docs.length.should.equal(2)
+                    done();
+                });
             });
         });
     });
