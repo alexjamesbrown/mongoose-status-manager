@@ -32,7 +32,6 @@ describe('Mongoose Status Manager', function(){
 
         	doc.updateStatus('first status')
 
-            should.exist(doc.status, 'status not set')
             doc.status.should.equal('first status')
         });
 
@@ -40,7 +39,6 @@ describe('Mongoose Status Manager', function(){
 
             doc.updateStatus('first status')
             
-            should.exist(doc.status_updates, 'status updates not set')
             doc.status_updates.should.have.length(1);
             doc.status_updates[0].status.should.equal('first status')
         });
@@ -49,7 +47,6 @@ describe('Mongoose Status Manager', function(){
 
             doc.updateStatus('first status')
             
-            should.exist(doc.status_updates, 'status updates not set')
             doc.status_updates.should.have.length(1);
             doc.status_updates[0].status.should.equal('first status')
 
