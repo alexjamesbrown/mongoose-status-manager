@@ -1,6 +1,5 @@
 var mocha = require('mocha'),
 async = require('async');
-should = require('should'),
 db = require('mongoose'),
 statusPlugin = require('../lib/mongoose-status-manager');
 
@@ -202,6 +201,28 @@ describe('Mongoose Status Manager', function(){
                         docs.length.should.equal(1)
                         done();
                     });
+                });
+            });
+
+            it('returns all docs by meta, if omitting status', function(done){
+                var doc6 = new Order();
+                doc6.updateStatus('completed', {reason: 'just because'});
+
+                doc6.save(function(err){
+                    Order.findByStatus('', {reason: 'just because'}, function(err, docs){
+                        if(err) done(err);
+
+                        docs.length.should.equal(2)
+                        done();
+                    });
+                });
+            });
+
+            it('throws error if status is missing', function(done){
+                Order.findByStatus({reason: 'just because'}, function(err, docs){
+                    err.should.be.an.Error;
+                    err.should.eql(Error('Status is missing'))
+                    done()
                 });
             });
         });
