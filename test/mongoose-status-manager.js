@@ -56,5 +56,16 @@ describe('Mongoose Status Manager', function(){
             doc.status_updates[0].date.toDateString().should.eql(new Date().toDateString())
         });
 
+        it('stores status updates in order of oldest at bottom', function(){
+
+            doc.updateStatus('first status')
+            doc.updateStatus('second status')
+            doc.updateStatus('third status')
+            
+            doc.status_updates.should.have.length(3);
+            doc.status_updates[0].status.should.equal('third status')
+            doc.status_updates[1].status.should.equal('second status')
+            doc.status_updates[2].status.should.equal('first status')
+        });
     });
 });
