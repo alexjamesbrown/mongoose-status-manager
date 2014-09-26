@@ -31,5 +31,15 @@ describe('Mongoose Status Manager', function(){
             o.status.should.equal('first status')
         });
 
+        it('adds status to status update list', function(){
+
+            var o = new Order();
+            o.updateStatus('first status')
+            
+            should.exist(o.status_updates, 'status updates not set')
+            o.status_updates.should.have.length(1);
+            o.status_updates[0].status.should.equal('first status')
+        });
+
     });
 });
