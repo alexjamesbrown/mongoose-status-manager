@@ -22,23 +22,27 @@ describe('Mongoose Status Manager', function(){
 
     describe('.updateStatus', function(){
 
+        var doc;
+
+        beforeEach(function(){
+            doc = new Order();
+        });
+
         it('sets status', function(){
 
-        	var o = new Order();
-        	o.updateStatus('first status')
+        	doc.updateStatus('first status')
             
-            should.exist(o.status, 'status not set')
-            o.status.should.equal('first status')
+            should.exist(doc.status, 'status not set')
+            doc.status.should.equal('first status')
         });
 
         it('adds status to status update list', function(){
 
-            var o = new Order();
-            o.updateStatus('first status')
+            doc.updateStatus('first status')
             
-            should.exist(o.status_updates, 'status updates not set')
-            o.status_updates.should.have.length(1);
-            o.status_updates[0].status.should.equal('first status')
+            should.exist(doc.status_updates, 'status updates not set')
+            doc.status_updates.should.have.length(1);
+            doc.status_updates[0].status.should.equal('first status')
         });
 
     });
