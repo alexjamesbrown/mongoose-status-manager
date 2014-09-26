@@ -76,8 +76,8 @@ describe('Mongoose Status Manager', function(){
                 doc.status.should.equal('a status update')
                 doc.status_updates[0].status.should.equal('a status update')
 
-                doc.status_updates[0].meta.userId.should.equal('abc123')
-                doc.status_updates[0].meta.otherUserId.should.equal('xyz789')
+                doc.status_updates[0].userId.should.equal('abc123')
+                doc.status_updates[0].otherUserId.should.equal('xyz789')
             });
 
             it('saves and retrieves from database', function(done){
@@ -97,7 +97,7 @@ describe('Mongoose Status Manager', function(){
                     order.status_updates[0].status.should.equal('second status');
                     order.status_updates[1].status.should.equal('first status');
 
-                    order.status_updates[0].meta.userId.should.equal(1234);
+                    order.status_updates[0].userId.should.equal(1234);
 
                     done();
                 });
@@ -134,8 +134,8 @@ describe('Mongoose Status Manager', function(){
                 doc.findAllStatus('second status', function(status){
                     status.should.have.length(2);
 
-                    status[0].meta.a.should.equal(1);
-                    status[1].meta.a.should.equal(2);
+                    status[0].a.should.equal(1);
+                    status[1].a.should.equal(2);
                 });
             });
         });
@@ -150,12 +150,23 @@ describe('Mongoose Status Manager', function(){
                 doc1.updateStatus('pending');
 
                 var doc2 = new Order();
-                doc2.updateStatus('complete')
+                doc2.updateStatus('complete');
 
                 var doc3 = new Order();
-                doc3.updateStatus('complete')
+                doc3.updateStatus('complete');
 
-                async.parallel([doc1.save.bind(doc1), doc2.save.bind(doc2), doc3.save.bind(doc3)], function(err){
+                var doc4 = new Order();
+                doc4.updateStatus('cancelled');
+
+                var doc5 = new Order();
+                doc5.updateStatus('cancelled', {reason: 'just because'});
+
+                async.parallel([
+                    doc1.save.bind(doc1), 
+                    doc2.save.bind(doc2), 
+                    doc3.save.bind(doc3), 
+                    doc4.save.bind(doc4), 
+                    doc5.save.bind(doc5)], function(err){
                     done();
                 });
             });
@@ -168,6 +179,17 @@ describe('Mongoose Status Manager', function(){
                     done();
                 });
             });
+
+            it('returns all docs with matching status and supplied meta information', function(done){
+                Order.findByStatus('cancelled', {reason: 'just because'}, function(err, docs){
+                    if(err) done(err);
+
+                    docs.length.should.equal(1)
+                    done();
+                });
+            });
         });
+
+
     });
 });
