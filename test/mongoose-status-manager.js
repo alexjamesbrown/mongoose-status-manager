@@ -45,5 +45,16 @@ describe('Mongoose Status Manager', function(){
             doc.status_updates[0].status.should.equal('first status')
         });
 
+        it('adds status to status update list with date', function(){
+
+            doc.updateStatus('first status')
+            
+            should.exist(doc.status_updates, 'status updates not set')
+            doc.status_updates.should.have.length(1);
+            doc.status_updates[0].status.should.equal('first status')
+
+            doc.status_updates[0].date.toDateString().should.eql(new Date().toDateString())
+        });
+
     });
 });
