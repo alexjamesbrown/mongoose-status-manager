@@ -67,5 +67,17 @@ describe('Mongoose Status Manager', function(){
             doc.status_updates[1].status.should.equal('second status')
             doc.status_updates[2].status.should.equal('first status')
         });
+
+        it('can store meta data with update', function(){
+
+            doc.updateStatus('a status update', {userId: 'abc123', otherUserId: 'xyz789'});
+            
+            doc.status_updates.should.have.length(1);
+            doc.status.should.equal('a status update')
+            doc.status_updates[0].status.should.equal('a status update')
+
+            doc.status_updates[0].meta.userId.should.equal('abc123')
+            doc.status_updates[0].meta.otherUserId.should.equal('xyz789')
+        });
     });
 });
