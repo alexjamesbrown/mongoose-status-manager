@@ -226,5 +226,140 @@ describe('Mongoose Status Manager', function(){
                 });
             });
         });
+
+        describe('.setStatus', function() {
+
+            var doc;
+
+            beforeEach(function(done) {
+                doc = new Order();
+                doc.save(function(err) {
+                    done()
+                });
+            });
+
+            it('updates doc status text by id', function(done) {
+                Order.updateStatus(doc._id, 'a status', function() {
+
+                    Order.findById(doc._id, function(err, retrievedDoc) {
+                        retrievedDoc.status.should.equal('a status')
+                        done();
+                    })
+                });
+            });
+
+            it('adds status to status update list by id', function(done) {
+                Order.updateStatus(doc._id, 'a status', function() {
+
+                    Order.findById(doc._id, function(err, retrievedDoc) {
+
+                        retrievedDoc.status_updates.should.have.length(1);
+                        retrievedDoc.status_updates[0].status.should.equal('a status');
+                        done();
+                    })
+                });
+            });
+
+            it('adds status with meta to status update list by id', function(done) {
+
+                var meta = {
+                    userId: 'abc123',
+                    otherUserId: 'xyz789'
+                };
+
+                Order.updateStatus(doc._id, 'a status', meta, function() {
+
+                    Order.findById(doc._id, function(err, retrievedDoc) {
+
+                        retrievedDoc.status_updates.should.have.length(1);
+                        retrievedDoc.status.should.equal('a status')
+                        retrievedDoc.status_updates[0].status.should.equal('a status')
+
+                        retrievedDoc.status_updates[0].userId.should.equal('abc123')
+                        retrievedDoc.status_updates[0].otherUserId.should.equal('xyz789')
+                        done();
+                    });
+                });
+            });
+
+            it('adds status updates in order of oldest at bottom by id', function(done) {
+
+                //normal way
+                doc.updateStatus('first status');
+                doc.updateStatus('second status');
+                doc.updateStatus('third status');
+
+                //save the doc
+                doc.save(function(err) {
+
+                    //now the static way
+                    Order.updateStatus(doc._id, 'fourth status', function(err) {
+                        Order.findById(doc._id, function(err, retrievedDoc) {
+
+                            retrievedDoc.status_updates[0].status.should.equal('fourth status')
+                            retrievedDoc.status_updates[1].status.should.equal('third status')
+                            retrievedDoc.status_updates[2].status.should.equal('second status')
+                            retrievedDoc.status_updates[3].status.should.equal('first status')
+
+                            done();
+
+                        });
+                    });
+                });
+            });
+
+            it('can supply a different query to update status', function(done) {
+
+                doc.property = 'test';
+
+                doc.save(function() {
+
+                    Order.updateStatus({
+                        property: 'test'
+                    }, 'a status', function() {
+
+                        Order.findById(doc._id, function(err, retrievedDoc) {
+                            retrievedDoc.status.should.equal('a status')
+                            done();
+                        })
+                    });
+                });
+            });
+
+            it('updates multiple', function(done) {
+
+                var doc1 = new Order();
+                var doc2 = new Order();
+                var doc3 = new Order();
+
+                doc1.property = 'xyz';
+                doc2.property = 'xyz';
+                doc3.property = 'xyz';
+
+                async.parallel([
+                    doc1.save.bind(doc1),
+                    doc2.save.bind(doc2),
+                    doc3.save.bind(doc3),
+                ], function(err) {
+
+                    Order.updateStatus({
+                        property: 'xyz'
+                    }, 'test123', function() {
+
+                        Order.findById(doc1._id, function(err, retrievedDoc1) {
+                            retrievedDoc1.status.should.equal('test123');
+
+                            Order.findById(doc2._id, function(err, retrievedDoc2) {
+                                retrievedDoc2.status.should.equal('test123');
+                                Order.findById(doc3._id, function(err, retrievedDoc3) {
+                                    retrievedDoc3.status.should.equal('test123');
+                                    done()
+                                });
+                            });
+                        });
+                    })
+                });
+            });
+        });
     });
 });
