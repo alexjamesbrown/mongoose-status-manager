@@ -20,7 +20,7 @@
     "author": "Alex Brown <alex@alexjamesbrown.com>",
     "license": "MIT",
     "dependencies": {
-        "mongoose": "^3.8.16"
+        "mongoose": "3.8.0"
     },
     "devDependencies": {
         "async": "^0.9.0",
