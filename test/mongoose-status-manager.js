@@ -339,6 +339,18 @@ describe('Mongoose Status Manager', function() {
                 });
             });
 
+            it('can specify usual _id: type query', function(done) {
+                Order.updateStatus({
+                    _id: doc._id
+                }, 'a status', function() {
+
+                    Order.findById(doc._id, function(err, retrievedDoc) {
+                        retrievedDoc.status.should.equal('a status')
+                        done();
+                    })
+                });
+            });
+
             it('can supply a different query to update status', function(done) {
 
                 doc.property = 'test';
