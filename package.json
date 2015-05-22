@@ -1,6 +1,6 @@
 {
     "name": "mongoose-status-manager",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "description": "Plugin to add status capability with history to mongoose models",
     "main": "index.js",
     "directories": {
